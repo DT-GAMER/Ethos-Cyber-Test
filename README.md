@@ -65,6 +65,12 @@ Ethos Cyber Sett is a Django-based web application designed to manage patients, 
    ```bash
    pip install -r requirements.txt
    ```
+## CREATE A .env file in the root directory and add the following variables
+```bash
+SECRET_KEY=yY0uR_S3cR3t_K3y
+DEBUG=True
+ALLOWED_HOSTS=y0ur_h0st || *
+```
 
 ## Database Setup and Migration
 
