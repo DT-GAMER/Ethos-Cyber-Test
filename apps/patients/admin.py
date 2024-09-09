@@ -6,8 +6,8 @@ class PatientAdmin(admin.ModelAdmin):
     """
     Admin configuration for the Patient model.
     """
-    list_display = ('id', 'first_name', 'last_name', 'email', 'created_by')  # Removed 'created_at'
-    list_filter = ('created_by',)  # Removed 'created_at'
+    list_display = ('id', 'first_name', 'last_name', 'email', 'created_by')
+    list_filter = ('created_by',)
     search_fields = ('first_name', 'last_name', 'email', 'created_by__email')
     ordering = ('id',)
     readonly_fields = ('email', 'created_by')
