@@ -1,4 +1,4 @@
-I wrote my test and they all passed, following TDD, I wrote them alongside each faetures to make sure they are accurate getting a test coverage of 86%, but for some reasons, this morning which i intended to submit , i decided to run last tasting and the tests where all going wrong, that was what delayed my submission till 3:11pm, i removed all tests and submitted not to lose submission but i am currently fixing them.
+I wrote my test and they all passed, following TDD, I wrote them alongside each faetures to make sure they are accurate getting a test coverage of 86%, but for some reasons, this morning which i intended to submit , i decided to run last tasting and the tests where all going wrong, that was what delayed my submission till 3:11pm.
 
 # Ethos-Cyber-Test
 
@@ -12,7 +12,7 @@ I wrote my test and they all passed, following TDD, I wrote them alongside each 
 8. **Running Tests**
 9. **API Endpoints**
 10. **Notes**
-    
+
 
 Ethos Cyber Sett is a Django-based web application designed to manage patients, doctors, and appointments in a healthcare setting. The system allows doctors to create and manage patient accounts, while patients can log in, view and update their profiles, and book appointments with doctors.
 
@@ -171,4 +171,3 @@ Here is a list of the main API endpoints provided in the Ethos Cyber Sett projec
 
 - Ensure the virtual environment is activated whenever running any Django management commands.
 - The project uses token-based authentication; ensure you include the token in the `Authorization` header when making API requests.
-
