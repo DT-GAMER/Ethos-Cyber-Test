@@ -40,6 +40,7 @@ class Patient(AbstractBaseUser, PermissionsMixin):
         null=True,
         blank=True,
         related_name='created_patients'
+    )
 
     groups = models.ManyToManyField(
         Group,

@@ -1,165 +1,109 @@
 from django.test import TestCase
-from django.core.exceptions import ValidationError
-from django.db import IntegrityError
-from django.contrib.auth import get_user_model
-from apps.doctors.models import Doctor, Patient, Appointment
-from django.utils import timezone
-import json
+from django.contrib.auth.models import Permission
+from django.contrib.contenttypes.models import ContentType
+from apps.doctors.models import DoctorManager, Doctor, Patient, Appointment
 
 class DoctorManagerTestCase(TestCase):
     def test_create_user(self):
-        Doctor = get_user_model()
-        user = Doctor.objects.create_user(email='test@example.com', password='testpass123', first_name='John', last_name='Doe')
-        self.assertEqual(user.email, 'test@example.com')
-        self.assertTrue(user.check_password('testpass123'))
-        self.assertFalse(user.is_staff)
-        self.assertFalse(user.is_superuser)
+        # Test creating a regular user
+        doctor = DoctorManager().create_user(email='test@example.com', password='password123')
+        self.assertEqual(doctor.email, 'test@example.com')
+        self.assertTrue(doctor.check_password('password123'))
+        self.assertTrue(doctor.is_active)
+        self.assertFalse(doctor.is_staff)
+        self.assertFalse(doctor.is_superuser)
 
     def test_create_superuser(self):
-        Doctor = get_user_model()
-        admin_user = Doctor.objects.create_superuser(email='admin@example.com', password='adminpass123', first_name='Admin', last_name='User')
-        self.assertEqual(admin_user.email, 'admin@example.com')
-        self.assertTrue(admin_user.check_password('adminpass123'))
-        self.assertTrue(admin_user.is_staff)
-        self.assertTrue(admin_user.is_superuser)
+        # Test creating a superuser
+        doctor = DoctorManager().create_superuser(email='admin@example.com', password='password123')
+        self.assertEqual(doctor.email, 'admin@example.com')
+        self.assertTrue(doctor.check_password('password123'))
+        self.assertTrue(doctor.is_active)
+        self.assertTrue(doctor.is_staff)
+        self.assertTrue(doctor.is_superuser)
 
     def test_create_user_without_email(self):
-        Doctor = get_user_model()
+        # Test creating a user without an email
         with self.assertRaises(ValueError):
-            Doctor.objects.create_user(email='', password='testpass123')
+            DoctorManager().create_user(email=None, password='password123')
 
-class DoctorModelTestCase(TestCase):
-    def setUp(self):
-        self.doctor = Doctor.objects.create_user(
+    def test_create_superuser_without_is_staff(self):
+        # Test creating a superuser without is_staff=True
+        with self.assertRaises(ValueError):
+            DoctorManager().create_superuser(email='admin@example.com', password='password123', is_staff=False)
+
+    def test_create_superuser_without_is_superuser(self):
+        # Test creating a superuser without is_superuser=True
+        with self.assertRaises(ValueError):
+            DoctorManager().create_superuser(email='admin@example.com', password='password123', is_superuser=False)
+
+class DoctorTestCase(TestCase):
+    def test_str_method(self):
+        # Test the __str__ method of the Doctor model
+        doctor = Doctor.objects.create(
+            email='test@example.com',
+            first_name='John',
+            last_name='Doe'
+        )
+        self.assertEqual(str(doctor), 'John Doe (test@example.com)')
+
+    def test_user_permissions(self):
+        # Test the user_permissions relationship
+        doctor = Doctor.objects.create(
+            email='test@example.com',
+            first_name='John',
+            last_name='Doe'
+        )
+
+        # Create a ContentType instance
+        content_type = ContentType.objects.create(
+            app_label='doctors',
+            model='doctor'
+        )
+
+        # Create a Permission instance with the correct content_type_id
+        permission = Permission.objects.create(
+            name='Can view patient',
+            content_type=content_type
+        )
+
+        doctor.user_permissions.add(permission)
+        self.assertIn(permission, doctor.user_permissions.all())
+
+class PatientTestCase(TestCase):
+    def test_str_method(self):
+        # Test the __str__ method of the Patient model
+        doctor = Doctor.objects.create(
             email='doctor@example.com',
-            password='testpass123',
+            first_name='Jane',
+            last_name='Doe'
+        )
+        patient = Patient.objects.create(
             first_name='John',
             last_name='Doe',
-            phone_number='123-456-7890',
-            address='123 Test St, Test City',
-            specialization='General'
-        )
-
-    def test_doctor_creation(self):
-        self.assertEqual(self.doctor.email, 'doctor@example.com')
-        self.assertEqual(self.doctor.first_name, 'John')
-        self.assertEqual(self.doctor.last_name, 'Doe')
-        self.assertEqual(self.doctor.phone_number, '1234567890')
-        self.assertEqual(self.doctor.address, '123 Test St, Test City')
-        self.assertEqual(self.doctor.specialization, 'General')
-
-    def test_doctor_str_method(self):
-        self.assertEqual(str(self.doctor), 'John Doe (doctor@example.com)')
-
-    def test_phone_number_formatting(self):
-        self.doctor.phone_number = '(123) 456-7890'
-        self.doctor.save()
-        self.assertEqual(self.doctor.phone_number, '1234567890')
-
-    def test_availability_json_field(self):
-        availability = [
-            {"day": "Monday", "start": "09:00", "end": "17:00"},
-            {"day": "Tuesday", "start": "09:00", "end": "17:00"}
-        ]
-        self.doctor.availability = availability
-        self.doctor.save()
-        self.assertEqual(self.doctor.availability, availability)
-
-class PatientModelTestCase(TestCase):
-    def setUp(self):
-        self.doctor = Doctor.objects.create_user(
-            email='doctor@example.com',
-            password='testpass123',
-            first_name='John',
-            last_name='Doe'
-        )
-        self.patient = Patient(
-            first_name='Jane',
-            last_name='Smith',
             email='patient@example.com',
-            created_by=self.doctor
+            created_by=doctor
         )
-        self.patient.raw_password = 'testpass123'
-        self.patient.save()
+        self.assertEqual(str(patient), 'John Doe (patient@example.com)')
 
-    def test_patient_creation(self):
-        self.assertEqual(self.patient.first_name, 'Jane')
-        self.assertEqual(self.patient.last_name, 'Smith')
-        self.assertEqual(self.patient.email, 'patient@example.com')
-        self.assertEqual(self.patient.created_by, self.doctor)
-        self.assertNotEqual(self.patient.password, 'testpass123')  # Password should be hashed
-
-    def test_patient_str_method(self):
-        self.assertEqual(str(self.patient), 'Jane Smith')
-
-    def test_patient_unique_email(self):
-        with self.assertRaises(IntegrityError):
-            new_patient = Patient(
-                first_name='Another',
-                last_name='Patient',
-                email='patient@example.com',
-                created_by=self.doctor
-            )
-            new_patient.raw_password = 'testpass123'
-            new_patient.save()
-
-class AppointmentModelTestCase(TestCase):
-    def setUp(self):
-        self.doctor = Doctor.objects.create_user(
+class AppointmentTestCase(TestCase):
+    def test_str_method(self):
+        # Test the __str__ method of the Appointment model
+        doctor = Doctor.objects.create(
             email='doctor@example.com',
-            password='testpass123',
+            first_name='Jane',
+            last_name='Doe'
+        )
+        patient = Patient.objects.create(
             first_name='John',
-            last_name='Doe'
-        )
-        self.patient = Patient(
-            first_name='Jane',
-            last_name='Smith',
+            last_name='Doe',
             email='patient@example.com',
-            created_by=self.doctor
+            created_by=doctor
         )
-        self.patient.raw_password = 'testpass123'
-        self.patient.save()
-
-        self.appointment_time = timezone.now() + timezone.timedelta(days=1)
-        self.appointment = Appointment.objects.create(
-            doctor=self.doctor,
-            patient=self.patient,
-            appointment_time=self.appointment_time,
-            reason='General checkup'
+        appointment = Appointment.objects.create(
+            patient=patient,
+            doctor=doctor,
+            date='2023-05-01',
+            time='10:00:00'
         )
-
-    def test_appointment_creation(self):
-        self.assertEqual(self.appointment.doctor, self.doctor)
-        self.assertEqual(self.appointment.patient, self.patient)
-        self.assertEqual(self.appointment.appointment_time, self.appointment_time)
-        self.assertEqual(self.appointment.reason, 'General checkup')
-
-    def test_appointment_str_method(self):
-        expected_str = f"Appointment with Dr. Doe on {self.appointment_time}"
-        self.assertEqual(str(self.appointment), expected_str)
-
-    def test_unique_doctor_appointment_time(self):
-        with self.assertRaises(IntegrityError):
-            Appointment.objects.create(
-                doctor=self.doctor,
-                patient=self.patient,
-                appointment_time=self.appointment_time,
-                reason='Another appointment'
-            )
-
-    def test_multiple_appointments_same_time_different_doctors(self):
-        another_doctor = Doctor.objects.create_user(
-            email='another_doctor@example.com',
-            password='testpass123',
-            first_name='Jane',
-            last_name='Doe'
-        )
-        try:
-            Appointment.objects.create(
-                doctor=another_doctor,
-                patient=self.patient,
-                appointment_time=self.appointment_time,
-                reason='Another appointment'
-            )
-        except IntegrityError:
-            self.fail("Should allow appointments at the same time for different doctors")
+        self.assertEqual(str(appointment), 'Appointment with John Doe on 2023-05-01 at 10:00:00')

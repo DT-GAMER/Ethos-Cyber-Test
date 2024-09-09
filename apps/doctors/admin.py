@@ -6,9 +6,9 @@ class DoctorAdmin(admin.ModelAdmin):
     """
     Admin configuration for the Doctor model.
     """
-    list_display = ('id', 'first_name', 'last_name', 'email', 'medical_specialization', 'is_active')
-    list_filter = ('medical_specialization', 'is_active')
-    search_fields = ('first_name', 'last_name', 'email', 'medical_specialization')
+    list_display = ('id', 'first_name', 'last_name', 'email', 'is_active')
+    #list_filter = ('is_active')
+    search_fields = ('first_name', 'last_name', 'email')
     ordering = ('id',)
     readonly_fields = ('email', 'password')
     fieldsets = (
@@ -16,7 +16,7 @@ class DoctorAdmin(admin.ModelAdmin):
             'fields': ('first_name', 'last_name', 'email', 'password', 'is_active')
         }),
         ('Professional Info', {
-            'fields': ('medical_specialization', 'phone_number', 'address', 'availability_days', 'availability_time_range')
+            'fields': ('phone_number', 'address', 'availability_days', 'availability_time_range')
         }),
     )
 

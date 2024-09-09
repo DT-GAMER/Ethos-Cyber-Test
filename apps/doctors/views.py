@@ -14,13 +14,10 @@ from apps.doctors.serializers import (
 )
 from apps.doctors.permissions import IsDoctor, CanManagePatient
 
-
-
 class DoctorRegisterView(generics.CreateAPIView):
-    queryset = Doctor.objects.all()
+    queryset = Doctor.objects.filter(is_active=True)
     serializer_class = DoctorCreateSerializer
     permission_classes = [permissions.AllowAny]
-
 
 class DoctorLoginView(generics.GenericAPIView):
     permission_classes = [permissions.AllowAny]
@@ -44,13 +41,14 @@ class DoctorLoginView(generics.GenericAPIView):
 
 
 class DoctorProfileView(generics.RetrieveUpdateAPIView):
-    queryset = Doctor.objects.all()
+    """
+    Retrieve and update doctor profile.
+    """
+    permission_classes = [IsAuthenticated]
     serializer_class = DoctorProfileSerializer
-    permission_classes = [IsAuthenticated, IsDoctor]
 
     def get_object(self):
         return self.request.user
-
 
 class PatientCreateView(generics.CreateAPIView):
     queryset = Patient.objects.all()

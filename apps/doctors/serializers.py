@@ -31,7 +31,7 @@ class DoctorLoginSerializer(serializers.Serializer):
 class DoctorProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = Doctor
-        fields = ['first_name', 'last_name', 'email', 'phone_number', 'address', 'medical_specialization', 'availability_days', 'availability_time_range']
+        fields = ['first_name', 'last_name', 'email', 'phone_number', 'address', 'availability_days', 'availability_time_range']
 
 
 class PatientCreationSerializer(serializers.ModelSerializer):
