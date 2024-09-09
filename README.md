@@ -144,6 +144,8 @@ DJANGO_SETTINGS_MODULE=ethnos_cyber_sett.test_settings python manage.py test app
 This will run all unit tests and provide a coverage report.
 
 ```bash
+coverage run manage.py test apps/doctors/tests
+coverage run manage.py test apps/patients/tests
 coverage report
 ```
 
