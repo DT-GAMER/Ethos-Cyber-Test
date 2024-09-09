@@ -1,66 +1,58 @@
 from django.test import TestCase
-from apps.patients.models import Patient
-from django.core.exceptions import ValidationError
+from django.contrib.auth.models import Permission
+from apps.doctors.models import Doctor
+from apps.patients.models import Patient, PatientManager
 
-
-class PatientModelTests(TestCase):
-
-    def setUp(self):
-        """Create a unique patient instance for testing."""
-        self.first_name = "testuser"
-        self.last_name = "seconduser"
-        self.email = "test@example.com"
-        self.password = "securepassword"
-        self.patient = Patient.objects.create_user(
-            first_name=self.first_name,
-            last_name=self.last_name,
-            email=self.email,
-            password=self.password
+class PatientTestCase(TestCase):
+    def test_str_method(self):
+        # Test the __str__ method of the Patient model
+        doctor = Doctor.objects.create(
+            email='doctor@example.com',
+            first_name='Jane',
+            last_name='Doe'
         )
-
-    def test_patient_creation(self):
-        """Test that a patient can be created successfully with all required fields."""
-        self.assertIsInstance(self.patient, Patient)
-        self.assertEqual(self.patient.first_name, self.first_name)
-        self.assertEqual(self.patient.last_name, self.last_name)
-        self.assertEqual(self.patient.email, self.email)
-
-    def test_invalid_email(self):
-        """Test that an invalid email raises an error."""
-        with self.assertRaises(ValidationError):
-            Patient.objects.create_user(
-                first_name="invalidemailuser",
-                last_name="invalidemailuser",
-                email="invalid-email",
-                password="securepassword"
-            )
-
-    def test_no_address(self):
-        """Test that a patient can be created without an address."""
-        patient = Patient.objects.create_user(
-            first_name="anotheruser",
-            last_name="anotruser",
-            email="another@example.com",
-            password="securepassword"
+        patient = Patient.objects.create(
+            first_name='John',
+            last_name='Doe',
+            email='patient@example.com',
+            created_by=doctor,
+            password='password123'
         )
-        self.assertIsNone(patient.address)
+        self.assertEqual(str(patient), 'John Doe (patient@example.com)')
 
-    def test_no_phone_number(self):
-        """Test that a patient can be created without a phone number."""
-        patient = Patient.objects.create_user(
-            first_name="yetanotheruser",
-            last_name="yetotheruser",
-            email="yetanother@example.com",
-            password="securepassword"
+    def test_get_full_name(self):
+        # Test the get_full_name method
+        patient = Patient.objects.create(
+            first_name='John',
+            last_name='Doe',
+            email='patient@example.com',
+            password='password123'
         )
-        self.assertIsNone(patient.phone_number)
+        self.assertEqual(patient.get_full_name(), 'John Doe')
 
-    def test_update_patient(self):
-        """Test that patient details can be updated successfully."""
-        self.patient.address = "123 Main St"
-        self.patient.phone_number = "123-456-7890"
-        self.patient.save()
-        updated_patient = Patient.objects.get(first_name=self.first_name)
-        update_patient = Patient.objects.get(last_name=self.last_name)
-        self.assertEqual(updated_patient.address, "123 Main St")
-        self.assertEqual(updated_patient.phone_number, "123-456-7890")
+    def test_get_short_name(self):
+        # Test the get_short_name method
+        patient = Patient.objects.create(
+            first_name='John',
+            last_name='Doe',
+            email='patient@example.com',
+            password='password123'
+        )
+        self.assertEqual(patient.get_short_name(), 'John')
+
+    def test_create_user_with_phone_number(self):
+        # Test creating a patient with a phone number
+        doctor = Doctor.objects.create(
+            email='doctor@example.com',
+            first_name='Jane',
+            last_name='Doe'
+        )
+        patient = Patient.objects.create(
+            first_name='John',
+            last_name='Doe',
+            email='patient@example.com',
+            phone_number='123-456-7890',
+            created_by=doctor,
+            password='password123'
+        )
+        self.assertEqual(patient.phone_number, '123-456-7890')

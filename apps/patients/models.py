@@ -17,6 +17,9 @@ class PatientManager(BaseUserManager):
         return patient
 
     def create_superuser(self, email, first_name, last_name, password=None, **extra_fields):
+        """
+        Create and return a superuser with an email, first name, and last name.
+        """
         extra_fields.setdefault('is_staff', True)
         extra_fields.setdefault('is_superuser', True)
 
@@ -35,7 +38,7 @@ class Patient(AbstractBaseUser, PermissionsMixin):
     is_staff = models.BooleanField(default=False)
 
     created_by = models.ForeignKey(
-        'doctors.Doctor',  # Reference to the Doctor model
+        'doctors.Doctor',
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
@@ -66,13 +69,7 @@ class Patient(AbstractBaseUser, PermissionsMixin):
         return f'{self.first_name} {self.last_name} ({self.email})'
 
     def get_full_name(self):
-        """
-        Returns the first name and last name of the patient.
-        """
         return f'{self.first_name} {self.last_name}'
 
     def get_short_name(self):
-        """
-        Returns the first name of the patient.
-        """
         return self.first_name
