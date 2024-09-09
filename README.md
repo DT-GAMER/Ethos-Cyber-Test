@@ -137,13 +137,15 @@ The application will be available at `http://127.0.0.1:8000/`.
 Tests are located in the `tests` directory of each app. To run all tests:
 
 ```bash
-python manage.py test apps.doctors.tests
-python manage.py test apps.patients.tests
+DJANGO_SETTINGS_MODULE=ethnos_cyber_sett.test_settings python manage.py test apps/doctors/tests
+DJANGO_SETTINGS_MODULE=ethnos_cyber_sett.test_settings python manage.py test apps/patients/tests
 ```
 
 This will run all unit tests and provide a coverage report.
 
 ```bash
+coverage run manage.py test apps/doctors/tests
+coverage run manage.py test apps/patients/tests
 coverage report
 ```
 
