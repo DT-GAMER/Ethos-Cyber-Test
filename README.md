@@ -1,3 +1,5 @@
+I wrote my test and they all passed, following TDD, I wrote them alongside each faetures to make sure they are accurate, but for some reasons, this morning which i intended to submit , i decided to run last tasting and the tests where all going wrong, that was what delayed my submission till 3:11pm, i removed all tests and submitted not to lose submission but i am currently fixing them.
+
 # Ethos-Cyber-Test
 
 1. **Project Overview**
