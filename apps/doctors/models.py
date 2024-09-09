@@ -2,6 +2,31 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser, BaseUserManager, Permission
 from django.core.validators import RegexValidator
 
+
+class DoctorManager(BaseUserManager):
+    """
+    Manager for creating Doctor instances.
+    """
+    def create_user(self, email, password=None, **extra_fields):
+        if not email:
+            raise ValueError("The Email field must be set")
+        email = self.normalize_email(email)
+        extra_fields.setdefault('is_active', True)
+        doctor = Doctor(email=email, **extra_fields)
+        doctor.set_password(password)
+        doctor.save(using=self._db)
+        return doctor
+
+    def create_superuser(self, email, password=None, **extra_fields):
+        extra_fields.setdefault('is_staff', True)
+        extra_fields.setdefault('is_superuser', True)
+        if extra_fields.get('is_staff') is not True:
+            raise ValueError('Superuser must have is_staff=True.')
+        if extra_fields.get('is_superuser') is not True:
+            raise ValueError('Superuser must have is_superuser=True.')
+        return self.create_user(email, password, **extra_fields)
+
+
 class Doctor(AbstractUser):
     """
     Custom user model for doctors.
@@ -29,38 +54,11 @@ class Doctor(AbstractUser):
     )
     USERNAME_FIELD = 'email'  # Use email to log in
     REQUIRED_FIELDS = ['first_name', 'last_name']
-    objects = None  # Set this to None temporarily
+    objects = DoctorManager()  # Use the custom manager
 
-class DoctorManager(BaseUserManager):
-    """
-    Manager for creating Doctor instances.
-    """
-    model = Doctor
+    def __str__(self):
+        return f'{self.first_name} {self.last_name} ({self.email})'
 
-    def create_user(self, email, password=None, **extra_fields):
-        """
-        Creates and saves a Doctor with the given email and password.
-        """
-        if not email:
-            raise ValueError("The Email field must be set")
-        email = self.normalize_email(email)
-        extra_fields.setdefault('is_active', True)
-        doctor = self.model(email=email, **extra_fields)
-        doctor.set_password(password)
-        doctor.save(using=self._db)
-        return doctor
-
-    def create_superuser(self, email, password=None, **extra_fields):
-        """
-        Creates and saves a superuser with the given email and password.
-        """
-        extra_fields.setdefault('is_staff', True)
-        extra_fields.setdefault('is_superuser', True)
-        if extra_fields.get('is_staff') is not True:
-            raise ValueError('Superuser must have is_staff=True.')
-        if extra_fields.get('is_superuser') is not True:
-            raise ValueError('Superuser must have is_superuser=True.')
-        return self.create_user(email, password, **extra_fields)
 
 class Patient(models.Model):
     """
@@ -73,6 +71,7 @@ class Patient(models.Model):
 
     def __str__(self):
         return f"{self.first_name} {self.last_name} ({self.email})"
+
 
 class Appointment(models.Model):
     """

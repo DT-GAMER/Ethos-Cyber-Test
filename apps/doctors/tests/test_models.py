@@ -55,8 +55,8 @@ class DoctorTestCase(TestCase):
             last_name='Doe'
         )
 
-        # Create a ContentType instance
-        content_type = ContentType.objects.create(
+        # Get or create a ContentType instance to avoid duplicate entries
+        content_type, created = ContentType.objects.get_or_create(
             app_label='doctors',
             model='doctor'
         )

@@ -15,7 +15,7 @@ from apps.doctors.serializers import (
 from apps.doctors.permissions import IsDoctor, CanManagePatient
 
 class DoctorRegisterView(generics.CreateAPIView):
-    queryset = Doctor.objects.filter(is_active=True)
+    queryset = Doctor.objects.all
     serializer_class = DoctorCreateSerializer
     permission_classes = [permissions.AllowAny]
 
