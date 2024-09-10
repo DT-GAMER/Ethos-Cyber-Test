@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
 from apps.doctors.models import Doctor, Patient, Appointment
+from django.contrib.auth.hashers import make_password
 
 User = get_user_model()
 
@@ -35,11 +36,15 @@ class DoctorProfileSerializer(serializers.ModelSerializer):
 
 
 class PatientCreationSerializer(serializers.ModelSerializer):
+    password = serializers.CharField(write_only=True, required=True)
+
     class Meta:
         model = Patient
-        fields = ['first_name', 'last_name', 'email']
+        fields = ['first_name', 'last_name', 'email', 'password']
 
     def create(self, validated_data):
+        # Hash the password
+        validated_data['password'] = make_password(validated_data['password'])
         return Patient.objects.create(**validated_data)
 
 

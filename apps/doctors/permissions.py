@@ -1,4 +1,5 @@
 from rest_framework import permissions
+from apps.doctors.models import Doctor
 
 class IsDoctor(permissions.BasePermission):
     """
@@ -16,7 +17,7 @@ class IsDoctor(permissions.BasePermission):
         Returns:
             bool: True if the user is authenticated and is a Doctor, False otherwise.
         """
-        return request.user and request.user.is_authenticated and hasattr(request.user, 'doctor')
+        return request.user and request.user.is_authenticated and isinstance(request.user, Doctor)
 
 class CanManagePatient(permissions.BasePermission):
     """

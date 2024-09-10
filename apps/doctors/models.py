@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser, BaseUserManager, Permission
 from django.core.validators import RegexValidator
+from django.contrib.auth.hashers import make_password
 
 
 class DoctorManager(BaseUserManager):
@@ -31,7 +32,7 @@ class Doctor(AbstractUser):
     """
     Custom user model for doctors.
     """
-    username = None  # Remove username field as we're using email
+    username = None
     email = models.EmailField(unique=True)
     first_name = models.CharField(max_length=30)
     last_name = models.CharField(max_length=30)
@@ -41,6 +42,7 @@ class Doctor(AbstractUser):
         blank=True,
         null=True
     )
+    password = models.CharField(max_length=128)
     address = models.CharField(max_length=255, blank=True, null=True)
     availability_days = models.CharField(max_length=100, blank=True, null=True)
     availability_time_range = models.CharField(max_length=50, blank=True, null=True)
@@ -67,10 +69,21 @@ class Patient(models.Model):
     first_name = models.CharField(max_length=30)
     last_name = models.CharField(max_length=30)
     email = models.EmailField(unique=True)
+    password = models.CharField(max_length=128)
     created_by = models.ForeignKey(Doctor, on_delete=models.CASCADE, related_name='patients')
 
     def __str__(self):
         return f"{self.first_name} {self.last_name} ({self.email})"
+
+    def save(self, *args, **kwargs):
+        # Hash the password before saving
+        if not self.password.startswith('pbkdf2_'):
+            self.password = make_password(self.password)
+        super().save(*args, **kwargs)
+
+    @property
+    def is_authenticated(self):
+        return True
 
 
 class Appointment(models.Model):

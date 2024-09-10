@@ -91,6 +91,7 @@ class PatientCreationSerializerTest(TestCase):
             "first_name": "Jane",
             "last_name": "Doe",
             "email": "jane.doe@example.com",
+            "password": "password123",
         }
 
     def test_create_patient(self):
@@ -113,6 +114,7 @@ class PatientSerializerTest(TestCase):
             first_name="Jane",
             last_name="Doe",
             email="jane.doe@example.com",
+            password="password123",
             created_by=self.doctor,
         )
 
@@ -121,6 +123,7 @@ class PatientSerializerTest(TestCase):
         self.assertEqual(serializer.data["first_name"], self.patient.first_name)
         self.assertEqual(serializer.data["last_name"], self.patient.last_name)
         self.assertEqual(serializer.data["email"], self.patient.email)
+        #self.assertEqual(serializer.data["password"], self.patient.password)
         self.assertEqual(serializer.data["created_by"], self.patient.created_by.id)
 
 
@@ -136,6 +139,7 @@ class AppointmentSerializerTest(TestCase):
             first_name="Jane",
             last_name="Doe",
             email="jane.doe@example.com",
+            password="password123",
             created_by=self.doctor,
         )
         self.appointment_data = {

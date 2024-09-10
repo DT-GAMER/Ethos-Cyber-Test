@@ -1,3 +1,4 @@
+from apps.doctors.tests.test_serializers import PatientCreationSerializerTest
 from django.test import TestCase
 from django.contrib.auth.models import Permission
 from django.contrib.contenttypes.models import ContentType
@@ -82,6 +83,7 @@ class PatientTestCase(TestCase):
             first_name='John',
             last_name='Doe',
             email='patient@example.com',
+            password='password123',
             created_by=doctor
         )
         self.assertEqual(str(patient), 'John Doe (patient@example.com)')
@@ -98,6 +100,7 @@ class AppointmentTestCase(TestCase):
             first_name='John',
             last_name='Doe',
             email='patient@example.com',
+            password='password123',
             created_by=doctor
         )
         appointment = Appointment.objects.create(
